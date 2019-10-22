@@ -17,12 +17,12 @@ public class Area {
     @PrimaryKey
     public String code;
     @ForignKey("area(code)")
-    public String up;
+    public Area up;
     public String name;
     
     public Area() {}
     
-    public Area(String code, String up, String name) {
+    public Area(String code, Area up, String name) {
         this.code = code;
         this.up = up;
         this.name = name;

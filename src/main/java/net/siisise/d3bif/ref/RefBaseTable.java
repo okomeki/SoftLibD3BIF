@@ -8,12 +8,12 @@ import net.siisise.d3bif.base.AbstractBaseTable;
 
 /**
  *
- * @author okome
+ * @param <E>
  */
 public class RefBaseTable<E> extends AbstractBaseTable {
     
     public RefBaseTable(RefSchema schema, String name, Column... columns) {
-        super(schema,name);
+        super(schema,name,columns);
     }
 
     RefBaseTable(Class<E> cls) {

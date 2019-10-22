@@ -1,10 +1,11 @@
 package net.siisise.d3bif.ref;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.siisise.d3bif.Column;
 import net.siisise.d3bif.base.AbstractSchema;
 import net.siisise.d3bif.Table;
@@ -59,10 +60,15 @@ public class RefSchema extends AbstractSchema {
      * @param obj
      * @return 
      */
-    public static RefBaseTable defineOf(Object obj) {
+    public static RefBaseTable defineOf(Object obj) throws SQLException {
         return defineOf(obj.getClass());
     }
     
+    /**
+     * @param name
+     * @param map
+     * @return 
+     */
     public static RefBaseTable defineOf(String name, Map<String,Object> map) {
         RefBaseTable table = new RefBaseTable(null,name);
         for ( String key : map.keySet()) {
@@ -74,30 +80,52 @@ public class RefSchema extends AbstractSchema {
     }
     
     /**
+     * ToDo: 外部参照
      * @param cls
      * @return 
+     * @throws java.sql.SQLException 
      */
-    public static RefBaseTable defineOf(Class cls) {
+    public static RefBaseTable defineOf(Class cls) throws SQLException {
         
         RefBaseTable table = new RefBaseTable(cls);
         Field[] fields = cls.getFields();
         for ( Field field : fields ) {
             Column col = table.col(field.getName());
-            Class<?> t = field.getType();
-            col.type(t);
+            Class<?> type = field.getType();
             NotNull nkey = field.getAnnotation(NotNull.class);
+            Unique ukey = field.getAnnotation(Unique.class);
+            PrimaryKey pkey = field.getAnnotation(PrimaryKey.class);
+            ForignKey fkey = field.getAnnotation(ForignKey.class);
+            if ( fkey != null) {
+                Column fcol;
+                Class fcls = field.getType();
+                if ( cls.getName().equals(fcls.getName())) {
+                    fcol = (Column)table.primaryKeys().get(0);
+                } else { // Object と 他で分ける
+                    RefBaseTable ftable = defineOf(fcls);  // 仮組
+                    List<Column> pk = ftable.primaryKeys();
+                    fcol = pk.get(0);
+                }
+                try {
+                    type = fcls.getField(fcol.getName()).getType();
+                    
+                    //
+                } catch (NoSuchFieldException ex) {
+                    Logger.getLogger(RefSchema.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (SecurityException ex) {
+                    Logger.getLogger(RefSchema.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            col.type(type);
             if ( nkey != null ) {
                 col.NOTNULL();
             }
-            Unique ukey = field.getAnnotation(Unique.class);
             if ( ukey != null ) {
                 col.UNIQUE();
             }
-            PrimaryKey pkey = field.getAnnotation(PrimaryKey.class);
             if ( pkey != null ) {
                 col.PRIMARYKEY();
             }
-            ForignKey fkey = field.getAnnotation(ForignKey.class);
             if (fkey != null ) {
                 String fn = fkey.value();
                 String[] fnn = fn.split("\\(|\\)");

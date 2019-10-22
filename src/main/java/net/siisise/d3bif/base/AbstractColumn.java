@@ -1,8 +1,11 @@
 package net.siisise.d3bif.base;
 
+import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.siisise.d3bif.BaseTable;
 import net.siisise.d3bif.Column;
 import net.siisise.d3bif.Table;
@@ -154,6 +157,7 @@ public abstract class AbstractColumn implements Column {
         }
     }
     
+    @Override
     public int count() {
         return 0;
     }
@@ -187,13 +191,23 @@ public abstract class AbstractColumn implements Column {
     public Column PRIMARYKEY() {
         primaryKey = true;
         addType("PRIMARY KEY");
+        if ( table != null ) {
+            ((AbstractBaseTable)table).primaryKeys.add(this);
+        }
         return this;
+    }
+    
+    public boolean isPrimaryKey() {
+        return primaryKey;
     }
 
     @Override
     public Column REFERENCES(Table refTable) {
         ColumnType ct = new ColumnType("REFERENCES",refTable);
         addType(ct);
+        if ( table != null ) {
+            ((AbstractBaseTable)table).exportedKeys.add(this);
+        }
         return this;
     }
 
@@ -201,7 +215,28 @@ public abstract class AbstractColumn implements Column {
     public Column REFERENCES(Column refColumn) {
         ColumnType ct = new ColumnType("REFERENCES",refColumn);
         addType(ct);
+        if ( table != null ) {
+            ((AbstractBaseTable)table).exportedKeys.add(this);
+        }
         return this;
+    }
+    
+    public boolean isExportedKey() {
+        try {
+            return table.exportedKeys().contains(this);
+        } catch (SQLException ex) {
+            Logger.getLogger(AbstractColumn.class.getName()).log(Level.SEVERE, null, ex);
+            throw new java.lang.IllegalStateException(ex);
+        }
+    }
+    
+    public Column exportedColumn() {
+        for ( ColumnType type : types ) {
+            if ( type.type.equals("REFERENCES")) {
+                return type.column;
+            }
+        }
+        return null;
     }
 
     @Override

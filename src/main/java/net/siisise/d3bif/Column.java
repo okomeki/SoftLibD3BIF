@@ -23,4 +23,6 @@ public interface Column extends D3IfObject {
     void copy(Column srcColumn);
     int count();
 
+    boolean isPrimaryKey();
+    boolean isExportedKey();
 }

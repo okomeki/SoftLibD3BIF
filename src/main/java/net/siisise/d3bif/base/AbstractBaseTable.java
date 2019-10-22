@@ -11,6 +11,7 @@ import net.siisise.d3bif.Schema;
 
 /**
  * 定義用っぽい
+ * @param <E>
  */
 public abstract class AbstractBaseTable<E> implements BaseTable {
     protected Schema schema;
@@ -28,9 +29,13 @@ public abstract class AbstractBaseTable<E> implements BaseTable {
     protected List<Column> uniqueKeys = new ArrayList<>();
     protected List<Column> exportedKeys = new ArrayList<>();
     
-    protected AbstractBaseTable(Schema schema, String name) {
+    protected AbstractBaseTable(Schema schema, String name,Column... columns) {
         this.schema = schema;
         this.name = name;
+        for ( Column col : columns ) {
+            this.columns.put(col.getName(),col(col));
+            
+        }
     }
 
     protected AbstractBaseTable(Class<E> cls) {

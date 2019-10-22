@@ -1,9 +1,14 @@
 package net.siisise.d3bif.data;
 
+import net.siisise.d3bif.annotation.ForignKey;
+
 /**
  *
- * @author okome
  */
 public class Postcode {
+    @ForignKey("area(code)")
+    public Area area;
     
+    public String code;
+    public String name;
 }

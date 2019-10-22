@@ -16,6 +16,7 @@ import net.siisise.d3bif.Catalog;
 import net.siisise.d3bif.Column;
 import net.siisise.d3bif.Schema;
 import net.siisise.d3bif.Table;
+import net.siisise.d3bif.base.AbstractColumn;
 import net.siisise.d3bif.base.AbstractTable;
 import net.siisise.d3bif.where.Condition;
 import net.siisise.json.JSONObject;
@@ -339,12 +340,17 @@ public class RemoteTable<E> extends AbstractTable<E> {
         int i = 1;
         for ( String colName : colNames ) {
             RemoteColumn col = (RemoteColumn) col(colName);
+            Object val = obj.get(colName);
+            if (col.isExportedKey() && val != null) {
+                Column pk = ((AbstractColumn)col).exportedColumn();
+                val = ((Map<String,Object>)val).get(pk.getName());
+            }
             switch (col.getType()) {
                 case Types.VARCHAR:
-                    ps.setString(i++, (String) obj.get(colName));
+                    ps.setString(i++, (String)val);
                     break;
                 case Types.INTEGER:
-                    ps.setInt(i++, (int) obj.get(colName));
+                    ps.setInt(i++, (int)val);
                     break;
                 default:
                     System.out.println(col.getType());

@@ -42,6 +42,13 @@ public class RefTable<E> extends AbstractTable<E> {
      */
     void add(Column column) {
         columns.put(column.getName(), column);
+        if ( column.isPrimaryKey()) {
+            primaryKeys.add(column);
+        }
+        if ( column.isExportedKey()) {
+            exportedKeys.add(column);
+        }
+        // uniqueは別途
     }
 
     @Override
