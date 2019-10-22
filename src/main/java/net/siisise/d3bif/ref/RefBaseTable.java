@@ -1,8 +1,8 @@
 package net.siisise.d3bif.ref;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import net.siisise.d3bif.Column;
 import net.siisise.d3bif.base.AbstractBaseTable;
 
@@ -10,10 +10,14 @@ import net.siisise.d3bif.base.AbstractBaseTable;
  *
  * @author okome
  */
-public class RefBaseTable extends AbstractBaseTable {
+public class RefBaseTable<E> extends AbstractBaseTable {
     
     public RefBaseTable(RefSchema schema, String name, Column... columns) {
         super(schema,name);
+    }
+
+    RefBaseTable(Class<E> cls) {
+        super(cls);
     }
 
     /**
@@ -36,6 +40,6 @@ public class RefBaseTable extends AbstractBaseTable {
 
     @Override
     public Collection<Column> columns() throws SQLException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return new ArrayList<>(columns.values());
     }
 }

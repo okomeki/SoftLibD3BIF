@@ -100,7 +100,6 @@ public class RemoteTable<E> extends AbstractTable<E> {
      */
     public List<Column> primaryKeys(DatabaseMetaData meta) throws SQLException {
         ResultSet pkeyResult = meta.getPrimaryKeys(schema.getCatalog().getName(), schema.getName(), getName());
-        //meta.getExportedKeys(name, name, name);
         List<Column> pKeys = new ArrayList<>();
         while ( pkeyResult.next() ) {
             Column column = col(pkeyResult.getString("COLUMN_NAME"));
@@ -129,7 +128,6 @@ public class RemoteTable<E> extends AbstractTable<E> {
         ResultSet fkeyResult = meta.getExportedKeys(schema.getCatalog().getName(), schema.getName(), getName());
         
         List<Column> fKeys = new ArrayList<>();
-//        List<Column> fKeys = new ArrayList<>();
         
         while ( fkeyResult.next() ) {
             // 参照される側

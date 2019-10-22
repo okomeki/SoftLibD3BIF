@@ -22,6 +22,7 @@ public interface BaseTable extends D3IfObject {
      */
     Column col(Column srcColumn);
 
+    Class getObjectClass();
     /**
      * 定義、型の変換のみ
      * @param srcTable

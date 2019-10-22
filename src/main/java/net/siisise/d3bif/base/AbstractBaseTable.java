@@ -10,12 +10,16 @@ import net.siisise.d3bif.Column;
 import net.siisise.d3bif.Schema;
 
 /**
- *
- * @author okome
+ * 定義用っぽい
  */
-public abstract class AbstractBaseTable implements BaseTable {
+public abstract class AbstractBaseTable<E> implements BaseTable {
     protected Schema schema;
     protected String name;
+    /**
+     * 型定義には使っていないかも
+     * オブジェクト変換に使用する
+     */
+    Class<E> def;
     /**
      * Ref?
      */
@@ -27,6 +31,11 @@ public abstract class AbstractBaseTable implements BaseTable {
     protected AbstractBaseTable(Schema schema, String name) {
         this.schema = schema;
         this.name = name;
+    }
+
+    protected AbstractBaseTable(Class<E> cls) {
+        this(null, cls.getSimpleName().toLowerCase());
+        def = cls;
     }
 
     @Override
@@ -75,7 +84,13 @@ public abstract class AbstractBaseTable implements BaseTable {
     }
     
     @Override
+    public Class<E> getObjectClass() {
+        return def;
+    }
+    
+    @Override
     public void copy(BaseTable src) throws SQLException {
+        def = src.getObjectClass();
         for ( Column srcCol : src.columns() ) {
             Column col = col(srcCol);
             columns.put(col.getName(),col);

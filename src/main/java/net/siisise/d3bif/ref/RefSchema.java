@@ -59,12 +59,12 @@ public class RefSchema extends AbstractSchema {
      * @param obj
      * @return 
      */
-    public static RefTable defineOf(Object obj) {
+    public static RefBaseTable defineOf(Object obj) {
         return defineOf(obj.getClass());
     }
     
-    public static RefTable defineOf(String name, Map<String,Object> map) {
-        RefTable table = new RefTable(name);
+    public static RefBaseTable defineOf(String name, Map<String,Object> map) {
+        RefBaseTable table = new RefBaseTable(null,name);
         for ( String key : map.keySet()) {
             Column col = table.col(key);
             Object val = map.get(key);
@@ -77,9 +77,9 @@ public class RefSchema extends AbstractSchema {
      * @param cls
      * @return 
      */
-    public static RefTable defineOf(Class cls) {
+    public static RefBaseTable defineOf(Class cls) {
         
-        RefTable table = new RefTable(cls);
+        RefBaseTable table = new RefBaseTable(cls);
         Field[] fields = cls.getFields();
         for ( Field field : fields ) {
             Column col = table.col(field.getName());

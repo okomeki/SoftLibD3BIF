@@ -19,8 +19,7 @@ import net.siisise.json.JSONValue;
  * Map系の実装でObject系、JSON系も使える
  * @param <E> マッピング対応型
  */
-public abstract class AbstractTable<E> extends AbstractBaseTable implements Table<E> {
-    Class<E> def;
+public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements Table<E> {
 
     protected AbstractTable(Schema schema, String name, Column... columns) {
         super(schema,name);
