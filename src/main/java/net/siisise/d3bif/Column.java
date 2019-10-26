@@ -5,6 +5,7 @@ package net.siisise.d3bif;
  */
 public interface Column extends D3IfObject {
     String tableColumnName();
+    BaseTable getTable();
     
     int getType();
     String[] getTypes();
@@ -25,4 +26,5 @@ public interface Column extends D3IfObject {
 
     boolean isPrimaryKey();
     boolean isExportedKey();
+    Column exportedColumn();
 }

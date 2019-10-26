@@ -16,8 +16,8 @@ public class RefBaseTable<E> extends AbstractBaseTable {
         super(schema,name,columns);
     }
 
-    RefBaseTable(Class<E> cls) {
-        super(cls);
+    RefBaseTable(RefSchema schema, Class<E> cls) {
+        super(schema, cls);
     }
 
     /**

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import net.siisise.d3bif.BaseTable;
 import net.siisise.d3bif.Column;
 import net.siisise.d3bif.Schema;
 import net.siisise.d3bif.Table;
@@ -25,10 +26,9 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
     protected AbstractTable(Schema schema, String name, Column... columns) {
         super(schema, name);
     }
-
-    protected AbstractTable(Class cls) {
-        this(null, cls.getSimpleName().toLowerCase());
-        def = cls;
+    
+    protected AbstractTable(Schema schema, Class<E> cls) {
+        super(schema, cls);
     }
 
     /**
@@ -134,9 +134,24 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
         schema.sql("DELETE", "FROM", escFullName(), where(conditions));
     }
 
+    /**
+     * 取得時は外部参照込み
+     * @param rs
+     * @return
+     * @throws SQLException 
+     */
     @Override
     public JSONObject json(ResultSet rs) throws SQLException {
         return (JSONObject) JSONValue.valueOf(map(rs));
+    }
+    
+    public List<JSONObject> json(Condition condition) throws SQLException {
+        ResultSet rs = query(condition);
+        List<JSONObject> results = new ArrayList<>();
+        while ( rs.next() ) {
+            results.add(json(rs));
+        }
+        return results;
     }
 
     @Override
@@ -144,6 +159,20 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
         return json(rs).map(def);
     }
 
+
+    public E obj(JSONObject json) throws SQLException {
+        return json.map(def);
+    }
+
+    public List<E> obj(Condition condition) throws SQLException {
+        ResultSet rs = query(condition);
+        List<E> results = new ArrayList<>();
+        while ( rs.next() ) {
+            results.add(obj(rs));
+        }
+        return results;
+    }
+    
     /**
      *
      * @see
@@ -168,7 +197,34 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
                 default:
                     throw new IllegalStateException("まだない:" + col.getType());
             }
+            if ( col.isExportedKey() ) {
+                Column exRefCol = col.exportedColumn();
+                BaseTable exRefTbl = exRefCol.getTable();
+                Table exTbl;
+                if (getName().equals(exRefTbl.getName())) {
+                    exTbl = this;
+                } else {
+                    exTbl = getSchema().dbTable(exRefTbl.getName());
+                }
+                Column exCol = exTbl.col(exRefCol.getName());
+                // ToDo: キーがnot null ならnullのとき省略したい ?
+                Condition cnd = Condition.EQ(exCol, (String)map.get(columnName)); // intもある
+                ResultSet exRs = exTbl.query(cnd);
+                while ( exRs.next() ) {
+                    map.put(columnName, exTbl.map(exRs));
+                }
+            } else {
+            }
         }
         return map;
+    }
+    
+    public List<Map<String,Object>> map(Condition condition ) throws SQLException {
+        ResultSet rs = query(condition);
+        List<Map<String,Object>> results = new ArrayList<>();
+        while ( rs.next() ) {
+            results.add(map(rs));
+        }
+        return results;
     }
 }

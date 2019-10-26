@@ -32,8 +32,8 @@ public class RefTable<E> extends AbstractTable<E> {
         this(null,name, columns);
     }
     
-    RefTable(Class<E> cls) {
-        super(cls);
+    RefTable(RefSchema schema, Class<E> cls) {
+        super(schema,cls);
     }
 
     /**

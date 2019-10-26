@@ -19,12 +19,14 @@ public class Area {
     @ForignKey("area(code)")
     public Area up;
     public String name;
+    public String name_kana;
     
     public Area() {}
     
-    public Area(String code, Area up, String name) {
+    public Area(String code, Area up, String name, String nameKana) {
         this.code = code;
         this.up = up;
         this.name = name;
+        this.name_kana = nameKana;
     }
 }

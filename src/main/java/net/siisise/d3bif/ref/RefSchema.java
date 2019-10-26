@@ -34,6 +34,10 @@ public class RefSchema extends AbstractSchema {
         return new RefTable(this,name);
     }
     
+    public RefTable newTable(Class cls) {
+        return new RefTable(this,cls);
+    }
+    
     @Override
     public Table dbTable(String name) throws SQLException {
         return cacheTable(name);
@@ -87,7 +91,7 @@ public class RefSchema extends AbstractSchema {
      */
     public static RefBaseTable defineOf(Class cls) throws SQLException {
         
-        RefBaseTable table = new RefBaseTable(cls);
+        RefBaseTable table = new RefBaseTable(null,cls);
         Field[] fields = cls.getFields();
         for ( Field field : fields ) {
             Column col = table.col(field.getName());

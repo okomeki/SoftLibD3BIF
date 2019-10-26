@@ -26,9 +26,14 @@ import net.siisise.json.JSONObject;
  * @param <E> マッピング対応型
  */
 public class RemoteTable<E> extends AbstractTable<E> {
+    List<Column> cols;
     
     protected RemoteTable(RemoteSchema schema, String name) {
         super(schema,name);
+    }
+
+    protected RemoteTable(RemoteSchema schema, Class cls) {
+        super(schema,cls);
     }
 
     /**
@@ -48,9 +53,11 @@ public class RemoteTable<E> extends AbstractTable<E> {
     
     @Override
     public List<Column> columns() throws SQLException {
-        Connection con = ((RemoteSchema)schema).getConnection();
-        List<Column> cols = columns(con.getMetaData());
-        ((RemoteSchema)schema).release(con);
+        if ( cols == null ) {
+            Connection con = ((RemoteSchema)schema).getConnection();
+            cols = columns(con.getMetaData());
+            ((RemoteSchema)schema).release(con);
+        }
         return cols;
     }
     
@@ -132,18 +139,18 @@ public class RemoteTable<E> extends AbstractTable<E> {
         
         while ( fkeyResult.next() ) {
             // 参照される側
-            String pkCatalogName = fkeyResult.getString("PKTABLE_CAT");
+//            String pkCatalogName = fkeyResult.getString("PKTABLE_CAT");
             String pkSchemaName = fkeyResult.getString("PKTABLE_SCHEM");
             String pkTableName = fkeyResult.getString("PKTABLE_NAME");
             String pkColumnName = fkeyResult.getString("PKCOLUMN_NAME");
-            System.out.println("PK:"+pkCatalogName +"."+ pkSchemaName + "." + pkTableName +"."+ pkColumnName);
+//            System.out.println("PK:"+pkCatalogName +"."+ pkSchemaName + "." + pkTableName +"."+ pkColumnName);
 
             // 参照する側
-            String fkCatalogName = fkeyResult.getString("FKTABLE_CAT");
+//            String fkCatalogName = fkeyResult.getString("FKTABLE_CAT");
             String fkSchemaName = fkeyResult.getString("FKTABLE_SCHEM");
             String fkTableName = fkeyResult.getString("FKTABLE_NAME");
             String fkColumnName = fkeyResult.getString("FKCOLUMN_NAME");
-            System.out.println("FK:"+fkCatalogName +"."+ fkSchemaName + "." + fkTableName +"."+ fkColumnName);
+//            System.out.println("FK:"+fkCatalogName +"."+ fkSchemaName + "." + fkTableName +"."+ fkColumnName);
 
             Catalog pkCatalog;
             Schema pkSchema;
@@ -336,26 +343,44 @@ public class RemoteTable<E> extends AbstractTable<E> {
         pu.close();
     }
     
+    /**
+     * 
+     * @param ps
+     * @param colNames
+     * @param obj
+     * @throws SQLException 
+     */
     void setList(PreparedStatement ps, List<String> colNames, Map<String,Object> obj) throws SQLException {
         int i = 1;
         for ( String colName : colNames ) {
-            RemoteColumn col = (RemoteColumn) col(colName);
-            Object val = obj.get(colName);
-            if (col.isExportedKey() && val != null) {
-                Column pk = ((AbstractColumn)col).exportedColumn();
-                val = ((Map<String,Object>)val).get(pk.getName());
-            }
-            switch (col.getType()) {
+            conv(ps, i++, col(colName), obj.get(colName));
+        }
+    }
+    
+    void conv(PreparedStatement ps, int i, Column col, Object val) throws SQLException {
+        if (col.isExportedKey() && val != null) {
+            Column pk = ((AbstractColumn)col).exportedColumn();
+            val = ((Map<String,Object>)val).get(pk.getName());
+        }
+        switch (col.getType()) {
                 case Types.VARCHAR:
-                    ps.setString(i++, (String)val);
+                    ps.setString(i, (String)val);
                     break;
                 case Types.INTEGER:
-                    ps.setInt(i++, (int)val);
+                    ps.setInt(i, (int)val);
                     break;
+//                case Types.DOUBLE:
+//                    ps.setDouble(i, (double)val);
+//                    break;
+//                case Types.TIMESTAMP_WITH_TIMEZONE:
+//                    ps.setTimestamp(i, (Timestamp)val);
+//                    break;
+//                case Types.BOOLEAN:
+//                    ps.setBoolean(i, (boolean)val);
+//                    break;
                 default:
                     System.out.println(col.getType());
-                    throw new SQLException("未知の型 " + colName + ":"+ col.getType());
-            }
+                    throw new SQLException("未知の型 " + col.getName() + ":"+ col.getType());
         }
     }
     
@@ -366,6 +391,16 @@ public class RemoteTable<E> extends AbstractTable<E> {
         setList(pre.ps,colNames,map);
         pre.ps.executeUpdate();
         pre.close();
+    }
+
+    @Override
+    public RemotePreUpdate update(Condition conditions) throws SQLException {
+        List<String> colNames = new ArrayList<>();
+        List<Column> cols = columns();
+        for ( Column col : cols ) {
+            colNames.add(col.getName());
+        }
+        return preUpdate(colNames, conditions);
     }
     
     public RemotePreUpdate preUpdate(List<String> cols, Condition conditions) throws SQLException {
@@ -392,15 +427,5 @@ public class RemoteTable<E> extends AbstractTable<E> {
         System.out.println(sql);
         
         return pre;
-    }
-
-    @Override
-    public RemotePreUpdate update(Condition conditions) throws SQLException {
-        List<String> colNames = new ArrayList<>();
-        List<Column> cols = columns();
-        for ( Column col : cols ) {
-            colNames.add(col.getName());
-        }
-        return preUpdate(colNames, conditions);
     }
 }

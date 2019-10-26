@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.siisise.d3bif.where.Condition;
+import net.siisise.json.JSONObject;
 
 /**
  * 未定
@@ -21,7 +22,7 @@ import net.siisise.d3bif.where.Condition;
  * @param <V> なにか
  */
 public class TableMap<K,V> implements Map<K,V> {
-    ObjectTable<V> tbl;
+    Table<V> tbl;
     Column keyCol;
     
     public TableMap(Table table) throws SQLException {
@@ -76,6 +77,10 @@ public class TableMap<K,V> implements Map<K,V> {
         }
     }
     
+    JSONObject json(ResultSet rs) throws SQLException {
+        return tbl.json(rs);
+    }
+    
     V obj(ResultSet rs) throws SQLException {
         return tbl.obj(rs);
     }
@@ -85,7 +90,8 @@ public class TableMap<K,V> implements Map<K,V> {
         try {
             ResultSet rs = tbl.query(condition(key));
             while ( rs.next() ) {
-                return obj(rs);
+                JSONObject json = json(rs); // 外部参照込み
+                return tbl.obj(json);
             }
             return null;
         } catch (SQLException ex) {

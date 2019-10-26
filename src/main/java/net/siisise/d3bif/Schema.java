@@ -27,6 +27,12 @@ public interface Schema extends D3IfObject {
      * @return 仮のtable
      */
     Table newTable(String name);
+    /**
+     * 暫定
+     * @param cls
+     * @return 
+     */
+    Table newTable(Class cls);
     
     /**
      * クラスを対応するスキーマ以下用に置き換える定義のコピーっぽいもの

@@ -34,6 +34,11 @@ public class RemoteSchema extends AbstractSchema {
     public RemoteTable newTable(String name) {
         return new RemoteTable(this, name);
     }
+    
+    @Override
+    public RemoteTable newTable(Class cls) {
+        return new RemoteTable(this,cls);
+    }
 
     /**
      *
@@ -69,6 +74,22 @@ public class RemoteSchema extends AbstractSchema {
         try {
             RemoteTable table = newTable(name);
             tableMap.put(name, table);
+            table.columns(con.getMetaData());
+            return table;
+        } finally {
+            release(con);
+        }
+    }
+    
+    public RemoteTable dbTable(Class cls) throws SQLException {
+        if (tableMap == null) {
+            tableMap = new HashMap<>();
+        }
+        Connection con = getConnection();
+        try {
+            String tableName = cls.getCanonicalName().toLowerCase();
+            RemoteTable table = newTable(cls);
+            tableMap.put(tableName, table);
             table.columns(con.getMetaData());
             return table;
         } finally {

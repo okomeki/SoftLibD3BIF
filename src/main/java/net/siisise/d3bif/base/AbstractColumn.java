@@ -83,6 +83,10 @@ public abstract class AbstractColumn implements Column {
         this.table = table;
     }
     
+    public BaseTable getTable() {
+        return table;
+    }
+    
     @Override
     public String getName() {
         return name;
@@ -221,6 +225,7 @@ public abstract class AbstractColumn implements Column {
         return this;
     }
     
+    @Override
     public boolean isExportedKey() {
         try {
             return table.exportedKeys().contains(this);
@@ -230,6 +235,7 @@ public abstract class AbstractColumn implements Column {
         }
     }
     
+    @Override
     public Column exportedColumn() {
         for ( ColumnType type : types ) {
             if ( type.type.equals("REFERENCES")) {

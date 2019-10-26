@@ -44,6 +44,7 @@ public abstract class AbstractCatalog implements Catalog {
             sb.append(" ");
             sb.append(option);
         }
+        System.out.println("preSQL: " + sb.toString());
         return sb.toString();
     }
 

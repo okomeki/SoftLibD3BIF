@@ -20,5 +20,10 @@ public class PgSchema extends RemoteSchema {
     public PgTable newTable(String name) {
         return new PgTable(this,name);
     }
+    
+    @Override
+    public PgTable newTable(Class cls) {
+        return new PgTable(this,cls);
+    }
 
 }

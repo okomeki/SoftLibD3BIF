@@ -37,9 +37,9 @@ public abstract class AbstractBaseTable<E> implements BaseTable {
             
         }
     }
-
-    protected AbstractBaseTable(Class<E> cls) {
-        this(null, cls.getSimpleName().toLowerCase());
+    
+    protected AbstractBaseTable(Schema schema, Class<E> cls) {
+        this(schema, cls.getSimpleName().toLowerCase());
         def = cls;
     }
 

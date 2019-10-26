@@ -13,6 +13,10 @@ public class PgTable extends RemoteTable {
     PgTable(PgSchema schema, String name) {
         super(schema,name);
     }
+    
+    PgTable(PgSchema schema, Class cls) {
+        super(schema,cls);
+    }
 
     @Override
     public PgColumn col(String name) {
