@@ -82,7 +82,7 @@ public class RemoteTable<E> extends AbstractTable<E> {
         }
         columns = cols;
         primaryKeys(meta); // 主キー
-        exportedKeys(meta); // 外部キー
+        importedKeys(meta); // 外部キー
         // unique がほしいか?
         return colList;
     }
@@ -94,10 +94,11 @@ public class RemoteTable<E> extends AbstractTable<E> {
      */
     @Override
     public List<Column> primaryKeys() throws SQLException {
-        Connection con = ((RemoteSchema)schema).getConnection();
-        List<Column> pkeys = primaryKeys(con.getMetaData());
-        ((RemoteSchema)schema).release(con);
-        return pkeys;
+        return new ArrayList<>(primaryKeys);
+//        Connection con = ((RemoteSchema)schema).getConnection();
+//        List<Column> pkeys = primaryKeys(con.getMetaData());
+//        ((RemoteSchema)schema).release(con);
+//        return pkeys;
     }
     
     /**
@@ -118,39 +119,42 @@ public class RemoteTable<E> extends AbstractTable<E> {
     }
     
     @Override
-    public List<Column> exportedKeys() throws SQLException {
+    public List<Column> importedKeys() throws SQLException {
+        return new ArrayList<>(importedKeys);
+/*
         Connection con = ((RemoteSchema)schema).getConnection();
-        List<Column> fkeys = exportedKeys(con.getMetaData());
+        List<Column> fkeys = importedKeys(con.getMetaData());
         ((RemoteSchema)schema).release(con);
         return fkeys;
+*/
     }
 
     /**
-     * 外部キー
+     * 外部から参照されている?キー
      * catalogのないPostgreSQLにあわせて書いてある
      * @param meta
      * @return
      * @throws SQLException 
      */
-    public List<Column> exportedKeys(DatabaseMetaData meta) throws SQLException {
-        ResultSet fkeyResult = meta.getExportedKeys(schema.getCatalog().getName(), schema.getName(), getName());
+    public List<Column> importedKeys(DatabaseMetaData meta) throws SQLException {
+        ResultSet ikeyResult = meta.getImportedKeys(schema.getCatalog().getName(), schema.getName(), getName());
         
-        List<Column> fKeys = new ArrayList<>();
+        List<Column> iKeys = new ArrayList<>();
         
-        while ( fkeyResult.next() ) {
+        while ( ikeyResult.next() ) {
             // 参照される側
-//            String pkCatalogName = fkeyResult.getString("PKTABLE_CAT");
-            String pkSchemaName = fkeyResult.getString("PKTABLE_SCHEM");
-            String pkTableName = fkeyResult.getString("PKTABLE_NAME");
-            String pkColumnName = fkeyResult.getString("PKCOLUMN_NAME");
-//            System.out.println("PK:"+pkCatalogName +"."+ pkSchemaName + "." + pkTableName +"."+ pkColumnName);
+            String pkCatalogName = ikeyResult.getString("PKTABLE_CAT");
+            String pkSchemaName = ikeyResult.getString("PKTABLE_SCHEM");
+            String pkTableName = ikeyResult.getString("PKTABLE_NAME");
+            String pkColumnName = ikeyResult.getString("PKCOLUMN_NAME");
+            System.out.println("PK:"+pkCatalogName +"."+ pkSchemaName + "." + pkTableName +"."+ pkColumnName);
 
             // 参照する側
-//            String fkCatalogName = fkeyResult.getString("FKTABLE_CAT");
-            String fkSchemaName = fkeyResult.getString("FKTABLE_SCHEM");
-            String fkTableName = fkeyResult.getString("FKTABLE_NAME");
-            String fkColumnName = fkeyResult.getString("FKCOLUMN_NAME");
-//            System.out.println("FK:"+fkCatalogName +"."+ fkSchemaName + "." + fkTableName +"."+ fkColumnName);
+            String fkCatalogName = ikeyResult.getString("FKTABLE_CAT");
+            String fkSchemaName = ikeyResult.getString("FKTABLE_SCHEM");
+            String fkTableName = ikeyResult.getString("FKTABLE_NAME");
+            String fkColumnName = ikeyResult.getString("FKCOLUMN_NAME");
+            System.out.println("FK:"+fkCatalogName +"."+ fkSchemaName + "." + fkTableName +"."+ fkColumnName);
 
             Catalog pkCatalog;
             Schema pkSchema;
@@ -177,16 +181,17 @@ public class RemoteTable<E> extends AbstractTable<E> {
 //            Catalog fkCatalog = ( fkCatalogName == null ) ? schema.getCatalog() : schema.getCatalog();
             fkSchema = ( fkSchemaName == null ) ? fkCatalog.getDefaultSchema() : fkCatalog.schema(fkSchemaName);
             if ( !fkTableName.equals(getName())) { // 完全一致?
-                fkTable = fkSchema.dbTable(fkTableName); // るーぷする
+                fkTable = fkSchema.cacheTable(fkTableName); // るーぷする
             } else {
                 fkTable = this;
             }
             fkColumn = (RemoteColumn) fkTable.col(fkColumnName);
 //            fKeys.add(fkColumn);
             fkColumn.REFERENCES(pkColumn);
-            fKeys.add(fkColumn);
+            iKeys.add(fkColumn);
         }
-        return fKeys;
+        importedKeys = iKeys;
+        return iKeys;
     }
     
     /**
@@ -358,8 +363,8 @@ public class RemoteTable<E> extends AbstractTable<E> {
     }
     
     void conv(PreparedStatement ps, int i, Column col, Object val) throws SQLException {
-        if (col.isExportedKey() && val != null) {
-            Column pk = ((AbstractColumn)col).exportedColumn();
+        if (col.isImportedKey() && val != null) {
+            Column pk = ((AbstractColumn)col).importedColumn();
             val = ((Map<String,Object>)val).get(pk.getName());
         }
         switch (col.getType()) {

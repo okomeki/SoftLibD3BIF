@@ -27,7 +27,7 @@ public abstract class AbstractBaseTable<E> implements BaseTable {
     protected Map<String,Column> columns = new HashMap<>();
     protected List<Column> primaryKeys = new ArrayList<>();
     protected List<Column> uniqueKeys = new ArrayList<>();
-    protected List<Column> exportedKeys = new ArrayList<>();
+    protected List<Column> importedKeys = new ArrayList<>();
     
     protected AbstractBaseTable(Schema schema, String name,Column... columns) {
         this.schema = schema;
@@ -108,9 +108,9 @@ public abstract class AbstractBaseTable<E> implements BaseTable {
             Column key = col(srcKey);
             uniqueKeys.add(key);
         }
-        for ( Column srcKey : src.exportedKeys() ) {
+        for ( Column srcKey : src.importedKeys() ) {
             Column key = col(srcKey);
-            exportedKeys.add(key);
+            importedKeys.add(key);
         }
     }
     
@@ -130,7 +130,7 @@ public abstract class AbstractBaseTable<E> implements BaseTable {
     }
 
     @Override
-    public List<Column> exportedKeys() throws SQLException {
-        return exportedKeys;
+    public List<Column> importedKeys() throws SQLException {
+        return importedKeys;
     }
 }

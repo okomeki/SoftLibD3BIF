@@ -109,7 +109,12 @@ public class RemoteCatalog extends AbstractCatalog {
 
     @Override
     public RemoteSchema schema(String name) {
-        return new RemoteSchema(this,name);
+        RemoteSchema schema = (RemoteSchema) schemas.get(name);
+        if ( schema == null ) { // なくても
+            schema = new RemoteSchema(this,name);
+            schemas.put(name,schema);
+        }
+        return schema;
     }
 
     @Override

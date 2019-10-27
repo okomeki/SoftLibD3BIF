@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import net.siisise.d3bif.base.AbstractSchema;
-import net.siisise.d3bif.Table;
 
 /**
  * JDBCによるSchemaっぽい処理まとめ
@@ -50,9 +49,12 @@ public class RemoteSchema extends AbstractSchema {
     public RemoteTable cacheTable(String name) throws SQLException {
         RemoteTable table = tableMap.get(name);
         if (table == null) {
+            System.out.println("cacheTable: fail");
             table = dbTable(name);
+            tableMap.put(name,table);
             //tableMap.put(name, table);
         }
+        System.out.println("cacheTable: hit");
         return table;
     }
 

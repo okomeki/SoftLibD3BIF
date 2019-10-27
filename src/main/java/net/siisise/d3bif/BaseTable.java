@@ -51,5 +51,5 @@ public interface BaseTable extends D3IfObject {
      * @return
      * @throws SQLException 
      */
-    List<Column> exportedKeys() throws SQLException;
+    List<Column> importedKeys() throws SQLException;
 }

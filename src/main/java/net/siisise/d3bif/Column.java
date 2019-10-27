@@ -25,6 +25,6 @@ public interface Column extends D3IfObject {
     int count();
 
     boolean isPrimaryKey();
-    boolean isExportedKey();
-    Column exportedColumn();
+    boolean isImportedKey();
+    Column importedColumn();
 }

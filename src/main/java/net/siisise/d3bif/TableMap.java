@@ -76,21 +76,21 @@ public class TableMap<K,V> implements Map<K,V> {
             throw new IllegalStateException(ex);
         }
     }
-    
-    JSONObject json(ResultSet rs) throws SQLException {
+/*    
+    private JSONObject json(ResultSet rs) throws SQLException {
         return tbl.json(rs);
     }
     
-    V obj(ResultSet rs) throws SQLException {
+    private V obj(ResultSet rs) throws SQLException {
         return tbl.obj(rs);
     }
-
+*/
     @Override
     public V get(Object key) {
         try {
             ResultSet rs = tbl.query(condition(key));
             while ( rs.next() ) {
-                JSONObject json = json(rs); // 外部参照込み
+                JSONObject json = tbl.json(rs); // 外部参照込み
                 return tbl.obj(json);
             }
             return null;
@@ -170,7 +170,7 @@ public class TableMap<K,V> implements Map<K,V> {
             List<V> vs = new ArrayList();
             ResultSet rs = tbl.query();
             while ( rs.next() ) {
-                vs.add(obj(rs));
+                vs.add(tbl.obj(rs));
             }
             return vs;
         } catch (SQLException ex) {

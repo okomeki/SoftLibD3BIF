@@ -73,7 +73,12 @@ public class PgDatabase extends RemoteCatalog {
 
     @Override
     public PgSchema schema(String name) {
-        return new PgSchema(this,name);
+        PgSchema schema = (PgSchema) schemas.get(name);
+        if (schema == null ) {
+            schema = new PgSchema(this,name);
+            schemas.put(name, schema);
+        }
+        return schema;
     }
     
     /**

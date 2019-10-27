@@ -201,6 +201,7 @@ public abstract class AbstractColumn implements Column {
         return this;
     }
     
+    @Override
     public boolean isPrimaryKey() {
         return primaryKey;
     }
@@ -210,7 +211,7 @@ public abstract class AbstractColumn implements Column {
         ColumnType ct = new ColumnType("REFERENCES",refTable);
         addType(ct);
         if ( table != null ) {
-            ((AbstractBaseTable)table).exportedKeys.add(this);
+            ((AbstractBaseTable)table).importedKeys.add(this);
         }
         return this;
     }
@@ -220,15 +221,20 @@ public abstract class AbstractColumn implements Column {
         ColumnType ct = new ColumnType("REFERENCES",refColumn);
         addType(ct);
         if ( table != null ) {
-            ((AbstractBaseTable)table).exportedKeys.add(this);
+            ((AbstractBaseTable)table).importedKeys.add(this);
         }
         return this;
     }
     
     @Override
-    public boolean isExportedKey() {
+    public boolean isImportedKey() {
         try {
-            return table.exportedKeys().contains(this);
+            for ( Column exKey : table.importedKeys() ) {
+                if ( exKey.getName().equals(getName())) {
+                    return true;
+                }
+            }
+            return false;
         } catch (SQLException ex) {
             Logger.getLogger(AbstractColumn.class.getName()).log(Level.SEVERE, null, ex);
             throw new java.lang.IllegalStateException(ex);
@@ -236,7 +242,7 @@ public abstract class AbstractColumn implements Column {
     }
     
     @Override
-    public Column exportedColumn() {
+    public Column importedColumn() {
         for ( ColumnType type : types ) {
             if ( type.type.equals("REFERENCES")) {
                 return type.column;

@@ -1,6 +1,8 @@
 package net.siisise.d3bif.base;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import net.siisise.d3bif.Catalog;
 import net.siisise.d3bif.Schema;
 
@@ -13,6 +15,7 @@ public abstract class AbstractCatalog implements Catalog {
      * null可かもしれない方向にする(予定)
      */
     protected String name;
+    protected Map<String,Schema> schemas = new HashMap<>();
 
     protected AbstractCatalog(String name) {
         this.name = name;

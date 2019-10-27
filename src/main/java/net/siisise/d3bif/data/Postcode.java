@@ -11,4 +11,5 @@ public class Postcode {
     
     public String code;
     public String name;
+    public String name_kana;
 }

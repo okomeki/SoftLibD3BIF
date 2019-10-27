@@ -18,7 +18,7 @@ public class Condition implements Value {
         
         @Override
         public String toString() {
-            return "'" + value + "'";
+            return value == null ? "null" : "'" + value + "'";
         }
         
     }
@@ -44,6 +44,18 @@ public class Condition implements Value {
         @Override
         public String toString() {
             return col.escFullName();
+        }
+    }
+    
+    static class IsNull extends Condition {
+        Column col;
+        
+        IsNull(Column column) {
+            col = column;
+        }
+        
+        public String toString() {
+            return col.escFullName() + " IS NULL";
         }
     }
 
@@ -82,7 +94,14 @@ public class Condition implements Value {
     }
     
     public static Condition EQ(Column a, String b) {
+        if ( b == null ) {
+            return ISNULL(a);
+        }
         return new ListCondition("=",new ColumnValue(a),new FixValue(b));
+    }
+    
+    public static Condition ISNULL(Column col) {
+        return new IsNull(col);
     }
     
     public static Condition AND(Condition... conds) {

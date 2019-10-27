@@ -197,8 +197,8 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
                 default:
                     throw new IllegalStateException("まだない:" + col.getType());
             }
-            if ( col.isExportedKey() ) {
-                Column exRefCol = col.exportedColumn();
+            if ( col.isImportedKey() ) {
+                Column exRefCol = col.importedColumn();
                 BaseTable exRefTbl = exRefCol.getTable();
                 Table exTbl;
                 if (getName().equals(exRefTbl.getName())) {
