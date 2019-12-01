@@ -13,6 +13,9 @@ import net.siisise.json.JSONObject;
  */
 public interface ObjectTable<E> extends RowTable {
     
+    @Override
+    Class getObjectClass();
+
     /**
      * 主キー、uniqueキーから自動的にConditionを生成したい
      * @param obj

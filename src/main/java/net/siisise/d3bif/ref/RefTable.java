@@ -52,10 +52,15 @@ public class RefTable<E> extends AbstractTable<E> {
     }
 
     @Override
+    public RefColumn newColumn(String name) {
+        return new RefColumn(this,name);
+    }
+
+    @Override
     public RefColumn col(String name) {
         RefColumn col = (RefColumn)columns.get(name);
         if ( col == null ) {
-            col = new RefColumn(this,name);
+            col = newColumn(name);
             columns.put(name, col);
         }
         return col;

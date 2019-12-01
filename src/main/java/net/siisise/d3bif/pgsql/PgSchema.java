@@ -26,4 +26,8 @@ public class PgSchema extends RemoteSchema {
         return new PgTable(this,cls);
     }
 
+    @Override
+    public PgSequence newSequence(String name) {
+        return new PgSequence(this,name);
+    }
 }

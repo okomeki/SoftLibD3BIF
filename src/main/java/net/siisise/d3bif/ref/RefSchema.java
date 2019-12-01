@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.siisise.d3bif.Column;
+import net.siisise.d3bif.Index;
+import net.siisise.d3bif.Sequence;
 import net.siisise.d3bif.base.AbstractSchema;
 import net.siisise.d3bif.Table;
 import net.siisise.d3bif.annotation.ForignKey;
@@ -34,15 +36,36 @@ public class RefSchema extends AbstractSchema {
         return new RefTable(this,name);
     }
     
+    @Override
     public RefTable newTable(Class cls) {
         return new RefTable(this,cls);
     }
     
     @Override
-    public Table dbTable(String name) throws SQLException {
-        return cacheTable(name);
+    public RefIndex newIndex(String name) {
+        return new RefIndex(this,name);
     }
-    
+
+    @Override
+    public Sequence newSequence(String name) {
+        return new RefSequence(this,name);
+    }
+
+    @Override
+    public Table dbTable(String name) throws SQLException {
+        return newTable(name);
+    }
+
+    @Override
+    public Index dbIndex(String name) throws SQLException {
+        return newIndex(name);
+    }
+
+    @Override
+    public Sequence dbSequence(String name) throws SQLException {
+        return newSequence(name);
+    }
+
     /**
      * 定義用
      * @param name
@@ -55,10 +78,20 @@ public class RefSchema extends AbstractSchema {
     }
 
     @Override
-    public List<Table> tables() {
+    public List<Table> dbTables() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
+
+    @Override
+    public List<Index> dbIndexes() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public List<Sequence> dbSequences() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     /**
      * オブジェクトを軽くテーブル定義に変換する
      * @param obj
@@ -147,5 +180,4 @@ public class RefSchema extends AbstractSchema {
         }
         return table;
     }
-
 }

@@ -14,6 +14,7 @@ public interface BaseTable extends D3IfObject {
     Schema getSchema();
     Collection<Column> columns() throws SQLException;
 
+    Column newColumn(String name);
     Column col(String name);
     /**
      * 複製
@@ -23,12 +24,15 @@ public interface BaseTable extends D3IfObject {
     Column col(Column srcColumn);
 
     Class getObjectClass();
+
     /**
      * 定義、型の変換のみ
      * @param srcTable
      * @throws SQLException 
      */
     void copy(BaseTable srcTable) throws SQLException;
+    
+    void drop() throws SQLException;
     
     // 多要素ないろいろ
     

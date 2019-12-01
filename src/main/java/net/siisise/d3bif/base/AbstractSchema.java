@@ -7,6 +7,8 @@ import net.siisise.d3bif.Schema;
 import net.siisise.d3bif.Catalog;
 import net.siisise.d3bif.Column;
 import net.siisise.d3bif.BaseTable;
+import net.siisise.d3bif.Index;
+import net.siisise.d3bif.Sequence;
 import net.siisise.d3bif.Table;
 import net.siisise.d3bif.ref.RefSchema;
 import net.siisise.json.JSONObject;
@@ -73,7 +75,7 @@ public abstract class AbstractSchema implements Schema {
     
     @Override
     public Table cacheTable(String name) throws SQLException {
-        return newTable(name);
+        return dbTable(name);
     }
 
     /**
@@ -84,7 +86,7 @@ public abstract class AbstractSchema implements Schema {
      * @throws SQLException
      */
     @Override
-    public Table create(BaseTable table, String... options) throws SQLException {
+    public Table createTable(BaseTable table, String... options) throws SQLException {
         Table xTable = newTable(table);
         Collection<Column> columns = table.columns();
         StringBuilder sb = new StringBuilder();
@@ -106,17 +108,18 @@ public abstract class AbstractSchema implements Schema {
     }
     
     @Override
-    public Table create(Class struct, String... options) throws SQLException {
-        return create(RefSchema.defineOf(struct),options);
+    public Table createTable(Class struct, String... options) throws SQLException {
+        return createTable(RefSchema.defineOf(struct),options);
     }
     
     @Override
-    public Table create(String name, Map<String,Object> struct, String... options) throws SQLException {
-        return create(RefSchema.defineOf(name, struct),options);
+    public Table createTable(String name, Map<String,Object> struct, String... options) throws SQLException {
+        return createTable(RefSchema.defineOf(name, struct),options);
     }
     
-    public Table create(String name, JSONObject obj, String... options) throws SQLException {
-        return create(RefSchema.defineOf(name, obj.map()));
+    @Override
+    public Table createTable(String name, JSONObject obj, String... options) throws SQLException {
+        return createTable(RefSchema.defineOf(name, obj.map()));
     }
 
     @Override
@@ -124,4 +127,35 @@ public abstract class AbstractSchema implements Schema {
         sql("DROP TABLE", newTable(table).escFullName());
     }
     
+    @Override
+    public Index cacheIndex(String name) throws SQLException {
+        return dbIndex(name);
+    }
+    
+    @Override
+    public void drop(Index index) throws SQLException {
+        sql("DROP INDEX", newIndex(index.getName()).escFullName());
+    }
+    
+    @Override
+    public Sequence newSequence(String name) {
+        return new AbstractSequence(this,name);
+    }
+
+    @Override
+    public Sequence cacheSequence(String name) throws SQLException {
+        return dbSequence(name);
+    }
+
+    @Override
+    public Sequence createSequence(String name) throws SQLException {
+        Sequence seq = newSequence(name);
+        sql("CREATE SEQUENCE",seq.escFullName());
+        return seq;
+    }
+
+    @Override
+    public void drop(Sequence sequence) throws SQLException {
+        sql("DROP SEQUENCE",sequence.escFullName());
+    }
 }

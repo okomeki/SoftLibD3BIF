@@ -29,10 +29,15 @@ public class RefBaseTable<E> extends AbstractBaseTable {
     }
 
     @Override
+    public RefColumn newColumn(String name) {
+        return new RefColumn(this,name);
+    }
+
+    @Override
     public RefColumn col(String name) {
         RefColumn col = (RefColumn)columns.get(name);
         if ( col == null ) {
-            col = new RefColumn(this,name);
+            col = newColumn(name);
             columns.put(name, col);
         }
         return col;
@@ -41,5 +46,10 @@ public class RefBaseTable<E> extends AbstractBaseTable {
     @Override
     public Collection<Column> columns() throws SQLException {
         return new ArrayList<>(columns.values());
+    }
+
+    @Override
+    public void drop() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

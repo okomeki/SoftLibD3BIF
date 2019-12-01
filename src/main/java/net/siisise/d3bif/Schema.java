@@ -7,26 +7,75 @@ import net.siisise.json.JSONObject;
 
 /**
  *
- * @author okome
  */
 public interface Schema extends D3IfObject {
     
     Catalog getCatalog();
-    Collection<? extends Table> tables() throws SQLException;
-
-    Table create(BaseTable refTable, String... options) throws SQLException;
-    Table create(Class struct, String... options) throws SQLException;
-    Table create(String name, Map<String,Object> struct, String... options) throws SQLException;
-    Table create(String name, JSONObject struct, String... options) throws SQLException;
-
-    void drop(BaseTable table) throws SQLException;
 
     /**
-     * インスタンス生成のみ
+     * db と cache に分けるかも
+     * @return
+     * @throws SQLException 
+     */
+    Collection<? extends Table> dbTables() throws SQLException;
+    Collection<? extends Index> dbIndexes() throws SQLException;
+    Collection<? extends Sequence> dbSequences() throws SQLException;
+
+    /**
+     * 定義からテーブルを作る
+     * @param refTable
+     * @param options
+     * @return
+     * @throws SQLException 
+     */
+    Table createTable(BaseTable refTable, String... options) throws SQLException;
+
+    /**
+     * 構造的なクラスからテーブルを作る。
+     * アノテーションもある
+     * @param struct
+     * @param options
+     * @return
+     * @throws SQLException
+     */
+    Table createTable(Class struct, String... options) throws SQLException;
+    /**
+     * Mapからテーブル定義を作る。
+     * @param name
+     * @param struct
+     * @param options
+     * @return
+     * @throws SQLException 
+     */
+    Table createTable(String name, Map<String,Object> struct, String... options) throws SQLException;
+    Table createTable(String name, JSONObject struct, String... options) throws SQLException;
+    void drop(BaseTable table) throws SQLException;
+
+    void drop(Index index) throws SQLException;
+    Sequence createSequence(String name) throws SQLException;
+    void drop(Sequence sequence) throws SQLException;
+
+    /**
+     * DB非連携インスタンス生成のみ
      * @param name
      * @return 仮のtable
      */
     Table newTable(String name);
+
+    /**
+     * DB非連携インスタンス生成のみ
+     * @param name
+     * @return 
+     */
+    Index newIndex(String name);
+
+    /**
+     * 
+     * @param name
+     * @return 
+     */
+    Sequence newSequence(String name);
+
     /**
      * 暫定
      * @param cls
@@ -44,11 +93,14 @@ public interface Schema extends D3IfObject {
 
     /**
      * キャッシュ利用かもしれないもの
+     * ないときはdbTable直結か
      * @param name
      * @return
      * @throws SQLException 
      */
     Table cacheTable(String name) throws SQLException;
+    Index cacheIndex(String name) throws SQLException;
+    Sequence cacheSequence(String name) throws SQLException;
 
     /**
      * 現在値の参照
@@ -57,8 +109,14 @@ public interface Schema extends D3IfObject {
      * @throws SQLException 
      */
     Table dbTable(String name) throws SQLException;
-    
-    // 何か databaseにつなぐだけ
+    Index dbIndex(String name) throws SQLException;
+    /**
+     * 
+     * @param name
+     * @return
+     * @throws SQLException 
+     */
+    Sequence dbSequence(String name) throws SQLException;
     
     /**
      *

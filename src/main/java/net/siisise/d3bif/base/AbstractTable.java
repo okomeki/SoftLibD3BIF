@@ -31,6 +31,11 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
         super(schema, cls);
     }
 
+    @Override
+    public void drop() throws SQLException {
+        schema.drop(this);
+    }
+
     /**
      * 簡単な変換
      *
@@ -159,7 +164,7 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
         return json(rs).map(def);
     }
 
-
+    @Override
     public E obj(JSONObject json) throws SQLException {
         return json.map(def);
     }
@@ -204,7 +209,7 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
                 if (getName().equals(exRefTbl.getName())) {
                     exTbl = this;
                 } else {
-                    exTbl = getSchema().dbTable(exRefTbl.getName());
+                    exTbl = getSchema().cacheTable(exRefTbl.getName());
                 }
                 Column exCol = exTbl.col(exRefCol.getName());
                 // ToDo: キーがnot null ならnullのとき省略したい ?

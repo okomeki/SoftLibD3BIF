@@ -1,5 +1,8 @@
 package net.siisise.d3bif.pgsql;
 
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,9 +33,21 @@ public class PgDatabase extends RemoteCatalog {
      * 横のCatalogに切り換え
      * @param catalog
      * @return 
+     * @throws java.sql.SQLException 
      */
-    public PgDatabase catalog(String catalog) {
-        return new PgDatabase(server,catalog,user,pass);
+    public PgDatabase catalog(String catalog) throws SQLException {
+        Connection con = getConnection();
+        DatabaseMetaData meta = con.getMetaData();
+        ResultSet rs = meta.getCatalogs();
+        PgDatabase pgdb = null;
+        while ( rs.next() ) {
+            String name = rs.getString("TABLE_CAT");
+            if (name.equalsIgnoreCase(catalog)) {
+                pgdb = new PgDatabase(server,catalog,user,pass);
+            }
+        }
+        release(con);
+        return pgdb;
     }
     
     /**
@@ -72,13 +87,8 @@ public class PgDatabase extends RemoteCatalog {
     }
 
     @Override
-    public PgSchema schema(String name) {
-        PgSchema schema = (PgSchema) schemas.get(name);
-        if (schema == null ) {
-            schema = new PgSchema(this,name);
-            schemas.put(name, schema);
-        }
-        return schema;
+    protected PgSchema newSchema(String name ) {
+        return new PgSchema(this,name);
     }
     
     /**

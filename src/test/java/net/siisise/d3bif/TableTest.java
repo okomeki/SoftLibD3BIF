@@ -51,7 +51,7 @@ public class TableTest {
         try {
             RemoteCatalog cat = new PgDatabase(DBSERVER, CATALOG, USER, PASS);
             RemoteSchema sc = cat.getDefaultSchema();
-            //Collection<Table> tables = sc.tables();
+            //Collection<Table> dbTables = sc.dbTables();
             rfc = sc.dbTable("rfc");
             Map<String, Object> row = new HashMap<>();
             row.put("id", 1);

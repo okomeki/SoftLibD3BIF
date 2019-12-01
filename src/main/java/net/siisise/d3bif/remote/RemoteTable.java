@@ -36,6 +36,10 @@ public class RemoteTable<E> extends AbstractTable<E> {
         super(schema,cls);
     }
 
+    @Override
+    public RemoteColumn newColumn(String name) {
+        return new RemoteColumn(this,name);
+    }
     /**
      *
      * @param name
@@ -45,7 +49,7 @@ public class RemoteTable<E> extends AbstractTable<E> {
     public Column col(String name) {
         Column col = columns.get(name);
         if ( col == null ) {
-            col = new RemoteColumn(this,name);
+            col = newColumn(name);
             columns.put(name,col);
         }
         return col;
@@ -88,20 +92,6 @@ public class RemoteTable<E> extends AbstractTable<E> {
     }
     
     /**
-     * 
-     * @return
-     * @throws SQLException 
-     */
-    @Override
-    public List<Column> primaryKeys() throws SQLException {
-        return new ArrayList<>(primaryKeys);
-//        Connection con = ((RemoteSchema)schema).getConnection();
-//        List<Column> pkeys = primaryKeys(con.getMetaData());
-//        ((RemoteSchema)schema).release(con);
-//        return pkeys;
-    }
-    
-    /**
      * 既存のColumnsに主キー情報をつけるだけ
      * @param meta
      * @return
@@ -118,17 +108,6 @@ public class RemoteTable<E> extends AbstractTable<E> {
         return pKeys;
     }
     
-    @Override
-    public List<Column> importedKeys() throws SQLException {
-        return new ArrayList<>(importedKeys);
-/*
-        Connection con = ((RemoteSchema)schema).getConnection();
-        List<Column> fkeys = importedKeys(con.getMetaData());
-        ((RemoteSchema)schema).release(con);
-        return fkeys;
-*/
-    }
-
     /**
      * 外部から参照されている?キー
      * catalogのないPostgreSQLにあわせて書いてある

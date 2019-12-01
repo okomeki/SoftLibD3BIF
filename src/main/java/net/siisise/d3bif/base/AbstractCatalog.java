@@ -8,7 +8,6 @@ import net.siisise.d3bif.Schema;
 
 /**
  * 抽象的な実装にするだけ
- * @author okome
  */
 public abstract class AbstractCatalog implements Catalog {
     /**
@@ -57,5 +56,5 @@ public abstract class AbstractCatalog implements Catalog {
         sql("CREATE SCHEMA " + xSchema.escName(), options);
         return xSchema;
     }
-    
+
 }

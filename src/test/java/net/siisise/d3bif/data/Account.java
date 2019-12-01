@@ -4,7 +4,6 @@ import net.siisise.d3bif.annotation.PrimaryKey;
 
 /**
  *
- * @author okome
  */
 public class Account {
     @PrimaryKey

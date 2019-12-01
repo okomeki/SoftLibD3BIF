@@ -21,3 +21,8 @@ DATABASE/CATALOG,SCHEMAの構造は同じにしておく?
 接続単位
   Connection Poolを基本にする
   Connection単体でも同じIf持ちにする?
+
+子の取得命名
+Table#newColumn   Schema#newTable   新規(DBに依存しない空)
+Table#dbColumn    Schema#dbTable    DB参照(毎回)
+Table#cacheColumn Schema#cacheTable DB参照(キャッシュあり)

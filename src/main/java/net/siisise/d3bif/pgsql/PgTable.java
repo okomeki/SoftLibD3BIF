@@ -17,15 +17,10 @@ public class PgTable extends RemoteTable {
     PgTable(PgSchema schema, Class cls) {
         super(schema,cls);
     }
-
-    @Override
-    public PgColumn col(String name) {
-        PgColumn col = (PgColumn)columns.get(name);
-        if (col == null ) {
-            col = new PgColumn(this,name);
-            columns.put(name, col);
-        }
-        return col;
-    }
     
+    @Override
+    public PgColumn newColumn(String name) {
+        return new PgColumn(this,name);
+    }
+
 }

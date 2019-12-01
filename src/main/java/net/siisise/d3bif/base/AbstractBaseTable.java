@@ -14,13 +14,16 @@ import net.siisise.d3bif.Schema;
  * @param <E>
  */
 public abstract class AbstractBaseTable<E> implements BaseTable {
+
     protected Schema schema;
     protected String name;
+
     /**
      * 型定義には使っていないかも
      * オブジェクト変換に使用する
      */
     Class<E> def;
+
     /**
      * Ref?
      */
@@ -28,7 +31,7 @@ public abstract class AbstractBaseTable<E> implements BaseTable {
     protected List<Column> primaryKeys = new ArrayList<>();
     protected List<Column> uniqueKeys = new ArrayList<>();
     protected List<Column> importedKeys = new ArrayList<>();
-    
+
     protected AbstractBaseTable(Schema schema, String name,Column... columns) {
         this.schema = schema;
         this.name = name;
@@ -37,7 +40,12 @@ public abstract class AbstractBaseTable<E> implements BaseTable {
             
         }
     }
-    
+
+    /**
+     * 
+     * @param schema
+     * @param cls 
+     */
     protected AbstractBaseTable(Schema schema, Class<E> cls) {
         this(schema, cls.getSimpleName().toLowerCase());
         def = cls;
@@ -78,7 +86,6 @@ public abstract class AbstractBaseTable<E> implements BaseTable {
     public Column col(String name) {
         return columns.get(name);
     }
-    
     
     @Override
     public Column col(Column srcColumn) {
@@ -121,16 +128,16 @@ public abstract class AbstractBaseTable<E> implements BaseTable {
      */
     @Override
     public List<Column> primaryKeys() throws SQLException {
-        return primaryKeys;
+        return new ArrayList<>(primaryKeys);
     }
 
     @Override
     public List<Column> uniqueKeys() throws SQLException {
-        return uniqueKeys;
+        return new ArrayList<>(uniqueKeys);
     }
 
     @Override
     public List<Column> importedKeys() throws SQLException {
-        return importedKeys;
+        return new ArrayList<>(importedKeys);
     }
 }

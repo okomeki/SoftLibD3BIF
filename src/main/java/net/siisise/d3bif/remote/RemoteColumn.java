@@ -5,7 +5,6 @@ import net.siisise.d3bif.base.AbstractColumn;
 /**
  * JDBCなColumn
  * DatabaseMetaData#getColumn
- * @author okome
  */
 public class RemoteColumn extends AbstractColumn {
 

@@ -17,7 +17,7 @@ import net.siisise.json.JSONObject;
  */
 public abstract class AbstractColumn implements Column {
     
-    static class ColumnType {
+    protected static class ColumnType {
         String type;
         Table table;
         Column column;
@@ -83,6 +83,7 @@ public abstract class AbstractColumn implements Column {
         this.table = table;
     }
     
+    @Override
     public BaseTable getTable() {
         return table;
     }

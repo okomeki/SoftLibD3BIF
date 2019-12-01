@@ -3,10 +3,11 @@ package net.siisise.d3bif;
 import java.sql.SQLException;
 
 /**
+ * JDBCのcatalog
  * PostgreSQLっぽいなにか
  */
 public interface Catalog extends D3IfObject {
-    Schema schema(String name);
+    Schema schema(String name) throws SQLException;
     Schema getDefaultSchema() throws SQLException;
     Schema create(Schema src, String... options) throws SQLException;
 
