@@ -85,6 +85,15 @@ public class PgDatabase extends RemoteCatalog {
         
         return create(pgDatabase, params.toArray(new String[0]));
     }
+    
+    /**
+     * よく使う設定で作る(仮
+     * @param newCatalogName
+     * @return 
+     */
+    PgDatabase createDB(String newCatalogName) throws SQLException {
+        return createDB(newCatalogName, "utf-8", null, "C", "C");
+    }
 
     @Override
     protected PgSchema newSchema(String name ) {

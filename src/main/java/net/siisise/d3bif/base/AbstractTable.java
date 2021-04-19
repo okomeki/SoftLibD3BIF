@@ -7,26 +7,33 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.json.JsonObject;
 import net.siisise.d3bif.BaseTable;
 import net.siisise.d3bif.Column;
+import net.siisise.d3bif.MapTable;
 import net.siisise.d3bif.Schema;
 import net.siisise.d3bif.Table;
 import net.siisise.d3bif.where.Condition;
+import net.siisise.json.JSON;
 import net.siisise.json.JSONObject;
 import net.siisise.json.JSONValue;
+import net.siisise.d3bif.MapResultSet;
+import net.siisise.json2.JSON2;
+import net.siisise.json2.JSON2Array;
+import net.siisise.json2.JSON2Object;
+import net.siisise.json2.JSON2Value;
 
 /**
- * 実装の元
- * Map系の実装でObject系、JSON系も使える
+ * 実装の元 Map系の実装でObject系、JSON系も使える
  *
  * @param <E> マッピング対応型
  */
-public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements Table<E> {
+public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements Table<E>,MapTable {
 
     protected AbstractTable(Schema schema, String name, Column... columns) {
         super(schema, name);
     }
-    
+
     protected AbstractTable(Schema schema, Class<E> cls) {
         super(schema, cls);
     }
@@ -77,11 +84,11 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
 
     @Override
     public void insert(E obj) throws SQLException {
-        insert(json(obj));
+        insert(json2(obj));
     }
 
     JSONObject json(E obj) throws SQLException {
-        JSONValue json = JSONValue.valueOf(obj);
+        JSONValue json = JSON.valueOf(obj);
         if (json instanceof JSONObject) {
             return (JSONObject) json;
         } else {
@@ -89,15 +96,30 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
         }
     }
 
+    /**
+     * 不要かもしれない
+     * @param obj
+     * @return
+     * @throws SQLException 
+     */
+    JSON2Object json2(E obj) throws SQLException {
+        JSON2Value json = JSON2.valueOf(obj);
+        if (json instanceof JSON2Object) {
+            return (JSON2Object) json;
+        } else {
+            throw new SQLException();
+        }
+    }
+
     @Override
     public void insert(JSONObject json) throws SQLException {
-        System.out.println(json.toString());
+        //System.out.println(json.toString());
         insert(json.map());
     }
 
     @Override
     public void insert(Map<String, Object> values) throws SQLException {
-        List<Map<String, Object>> list = new ArrayList<>();
+        List<Map<String, Object>> list = new JSON2Array();
         list.add(values);
         insert(list);
     }
@@ -133,6 +155,16 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
     public ResultSet query() throws SQLException {
         return query(null);
     }
+    
+    @Override
+    public MapResultSet queryMap(Condition condition) throws SQLException {
+        return new AbstractMapResultSet(this, condition);
+    }
+
+    @Override
+    public MapResultSet queryMap() throws SQLException {
+        return new AbstractMapResultSet(this);
+    }
 
     @Override
     public void remove(Condition conditions) throws SQLException {
@@ -141,43 +173,83 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
 
     /**
      * 取得時は外部参照込み
+     * JSON Parserは走らない
+     *
+     * @param rs
+     * @return
+     * @throws SQLException
+     */
+    @Override
+    public JSONObject json(ResultSet rs) throws SQLException {
+        return (JSONObject) JSON.valueOf(map(rs));
+    }
+
+    @Override
+    public JSON2Object json2(ResultSet rs) throws SQLException {
+        return (JSON2Object) JSON2.valueOf(map(rs));
+    }
+
+    @Override
+    public List<JSONObject> json(Condition condition) throws SQLException {
+        MapResultSet rs = AbstractTable.this.queryMap(condition);
+        List<JSONObject> results = new ArrayList<>();
+        while (rs.next()) {
+            results.add(rs.json());
+        }
+        return results;
+    }
+
+    @Override
+    public List<JSON2Object> json2(Condition condition) throws SQLException {
+        MapResultSet rs = AbstractTable.this.queryMap(condition);
+        List<JSON2Object> results = new ArrayList<>();
+        while (rs.next()) {
+            results.add(rs.json2());
+        }
+        return results;
+    }
+
+    @Override
+    public List<JsonObject> toJson(Condition condition) throws SQLException {
+        MapResultSet rs = queryMap(condition);
+        List<JsonObject> jret = new ArrayList<>();
+        while ( rs.next() ) {
+            jret.add(rs.json2().toJson());
+        }
+        return jret;
+    }
+
+    /**
+     * JSON経由しなくてもいい
      * @param rs
      * @return
      * @throws SQLException 
      */
     @Override
-    public JSONObject json(ResultSet rs) throws SQLException {
-        return (JSONObject) JSONValue.valueOf(map(rs));
-    }
-    
-    public List<JSONObject> json(Condition condition) throws SQLException {
-        ResultSet rs = query(condition);
-        List<JSONObject> results = new ArrayList<>();
-        while ( rs.next() ) {
-            results.add(json(rs));
-        }
-        return results;
-    }
-
-    @Override
     public E obj(ResultSet rs) throws SQLException {
-        return json(rs).map(def);
+        return (E) json2(rs).typeMap(def);
     }
 
     @Override
     public E obj(JSONObject json) throws SQLException {
-        return json.map(def);
+        return json.typeMap(def);
     }
 
+    @Override
+    public E obj(JSON2Object json) throws SQLException {
+        return (E) json.typeMap(def);
+    }
+
+    @Override
     public List<E> obj(Condition condition) throws SQLException {
-        ResultSet rs = query(condition);
+        MapResultSet<E> rs = AbstractTable.this.queryMap(condition);
         List<E> results = new ArrayList<>();
-        while ( rs.next() ) {
-            results.add(obj(rs));
+        while (rs.next()) {
+            results.add(rs.obj());
         }
         return results;
     }
-    
+
     /**
      *
      * @see
@@ -202,7 +274,7 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
                 default:
                     throw new IllegalStateException("まだない:" + col.getType());
             }
-            if ( col.isImportedKey() ) {
+            if (col.isImportedKey()) {
                 Column exRefCol = col.importedColumn();
                 BaseTable exRefTbl = exRefCol.getTable();
                 Table exTbl;
@@ -213,22 +285,24 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
                 }
                 Column exCol = exTbl.col(exRefCol.getName());
                 // ToDo: キーがnot null ならnullのとき省略したい ?
-                Condition cnd = Condition.EQ(exCol, (String)map.get(columnName)); // intもある
-                ResultSet exRs = exTbl.query(cnd);
-                while ( exRs.next() ) {
-                    map.put(columnName, exTbl.map(exRs));
+                Condition cnd = Condition.EQ(exCol, (String) map.get(columnName)); // intもある
+                List<Map<String,Object>> exr = exTbl.map(cnd);
+                MapResultSet exRs = exTbl.queryMap(cnd);
+                while (exRs.next()) {
+                    map.put(columnName, exRs.map());
                 }
             } else {
             }
         }
         return map;
     }
-    
-    public List<Map<String,Object>> map(Condition condition ) throws SQLException {
-        ResultSet rs = query(condition);
-        List<Map<String,Object>> results = new ArrayList<>();
-        while ( rs.next() ) {
-            results.add(map(rs));
+
+    @Override
+    public List<Map<String, Object>> map(Condition condition) throws SQLException {
+        MapResultSet rs = AbstractTable.this.queryMap(condition);
+        List<Map<String, Object>> results = new ArrayList<>();
+        while (rs.next()) {
+            results.add(rs.map());
         }
         return results;
     }

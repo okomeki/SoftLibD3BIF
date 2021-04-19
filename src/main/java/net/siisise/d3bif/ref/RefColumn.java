@@ -4,7 +4,6 @@ import net.siisise.d3bif.base.AbstractColumn;
 
 /**
  * 定義用
- * @author okome
  */
 public class RefColumn extends AbstractColumn {
 

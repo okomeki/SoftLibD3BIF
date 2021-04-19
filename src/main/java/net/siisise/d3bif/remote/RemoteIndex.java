@@ -4,7 +4,6 @@ import net.siisise.d3bif.base.AbstractIndex;
 
 /**
  *
- * @author okome
  */
 public class RemoteIndex extends AbstractIndex {
 

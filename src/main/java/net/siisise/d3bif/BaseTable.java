@@ -1,7 +1,6 @@
 package net.siisise.d3bif;
 
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -12,7 +11,7 @@ import java.util.List;
 public interface BaseTable extends D3IfObject {
 
     Schema getSchema();
-    Collection<Column> columns() throws SQLException;
+    List<Column> columns() throws SQLException;
 
     Column newColumn(String name);
     Column col(String name);

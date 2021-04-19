@@ -155,9 +155,10 @@ public class RemoteSchema extends CacheSchema {
             release(con);
         }
         List<RemoteIndex> indexes = new ArrayList<>();
-        for ( Index obj : indexMap.values() ) {
-            indexes.add((RemoteIndex) obj);
-        }
+        indexes.addAll((List)indexMap.values());
+//        for ( Index obj : indexMap.values() ) {
+//            indexes.add((RemoteIndex) obj);
+//        }
         return indexes;
     }
 
@@ -170,9 +171,10 @@ public class RemoteSchema extends CacheSchema {
             release(con);
         }
         List<RemoteSequence> tables = new ArrayList<>();
-        for ( Sequence sequence : sequenceMap.values() ) {
-            tables.add((RemoteSequence) sequence);
-        }
+        tables.addAll((List)sequenceMap.values());
+//        sequenceMap.values().forEach(sequence -> {
+//            tables.add((RemoteSequence) sequence);
+//        });
         return tables;
     }
     

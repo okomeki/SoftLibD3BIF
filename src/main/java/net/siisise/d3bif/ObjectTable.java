@@ -2,13 +2,14 @@ package net.siisise.d3bif;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import net.siisise.d3bif.where.Condition;
 import net.siisise.json.JSONObject;
+import net.siisise.json2.JSON2Object;
 
 /**
  * TableからObjectなところだけ分離してみる
  * 実装はJsonTableの拡張
- * @author okome
  * @param <E>
  */
 public interface ObjectTable<E> extends RowTable {
@@ -26,6 +27,8 @@ public interface ObjectTable<E> extends RowTable {
     
     E obj(ResultSet rs) throws SQLException;
     E obj(JSONObject json) throws SQLException;
+    E obj(JSON2Object json) throws SQLException;
+    List<E> obj(Condition condition) throws SQLException;
 
     /**
      * オブジェクトマッピングによるSQL 3つずつ

@@ -97,7 +97,7 @@ public class Condition implements Value {
         if ( b == null ) {
             return ISNULL(a);
         }
-        return new ListCondition("=",new ColumnValue(a),new FixValue(b));
+        return EQ(new ColumnValue(a),new FixValue(b));
     }
     
     public static Condition ISNULL(Column col) {

@@ -19,7 +19,6 @@ import net.siisise.d3bif.Table;
 import net.siisise.d3bif.base.AbstractColumn;
 import net.siisise.d3bif.base.AbstractTable;
 import net.siisise.d3bif.where.Condition;
-import net.siisise.json.JSONObject;
 
 /**
  * 構造情報はローカルでも持つ感じに仕上がっているかもしれない
@@ -227,34 +226,7 @@ public class RemoteTable<E> extends AbstractTable<E> {
         pu.close(); // spool に戻るだけでしばらく使える(予定)
         return rs;
     }
-    
-    List<E> queryObject(Condition condition) throws SQLException {
-        ResultSet rs = query(condition);
-        List<E> ret = new ArrayList<>();
-        while ( rs.next() ) {
-            ret.add(obj(rs));
-        }
-        return ret;
-    }
-    
-    List<JSONObject> queryJSON(Condition condition) throws SQLException {
-        ResultSet rs = query(condition);
-        List<JSONObject> jret = new ArrayList<>();
-        while ( rs.next() ) {
-            jret.add(json(rs));
-        }
-        return jret;
-    }
-    
-    List<Map<String,Object>> queryMap(Condition condition) throws SQLException {
-        ResultSet rs = query(condition);
-        List<Map<String,Object>> mret = new ArrayList<>();
-        while ( rs.next() ) {
-            mret.add(map(rs));
-        }
-        return mret;
-    }
-    
+
     @Override
     public int size() throws SQLException {
         return count(null);

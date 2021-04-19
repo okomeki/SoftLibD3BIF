@@ -3,7 +3,6 @@ package net.siisise.d3bif.ref;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import net.siisise.d3bif.Column;
@@ -67,7 +66,7 @@ public class RefTable<E> extends AbstractTable<E> {
     }
 
     @Override
-    public Collection<Column> columns() throws SQLException {
+    public List<Column> columns() throws SQLException {
         return new ArrayList<>(columns.values());
     }
 
@@ -77,7 +76,7 @@ public class RefTable<E> extends AbstractTable<E> {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
 //        return null; // 結果は返せない
     }
-
+    
     @Override
     public int size() {
         return 0;

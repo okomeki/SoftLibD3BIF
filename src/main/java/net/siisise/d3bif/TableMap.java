@@ -1,8 +1,8 @@
 package net.siisise.d3bif;
 
+import java.lang.reflect.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -16,17 +16,18 @@ import net.siisise.d3bif.where.Condition;
  * 未定
  * primary keyが1つのときだけ
  * 直接つかいたい
- * @author okome
- * @param <K> 主キーまたはUniqueなもの 1つのみ
+ * @param <K> 主キーまたはUniqueなもの 1つのみ, 複数の場合はObject[]配列.
  * @param <V> なにか
  */
 public class TableMap<K,V> implements Map<K,V> {
     Table<V> tbl;
     Column keyCol;
+    List<Column> keyCols;
     
     public TableMap(Table table) throws SQLException {
         this.tbl = table;
-        keyCol = table.primaryKeys().get(0);
+        keyCols = table.primaryKeys();
+        keyCol = keyCols.get(0);
     }
 
     /**
@@ -53,9 +54,33 @@ public class TableMap<K,V> implements Map<K,V> {
     }
     
     Condition condition(Object key) {
-        return Condition.EQ(keyCol, (String)key);
+        int i = 0;
+        Object[] keys;
+        if (key.getClass().isArray()) {
+            keys = new Object[Array.getLength(key)];
+            for ( int j = 0; j < keys.length; j++ ) {
+                keys[j] = Array.get(key, j);
+            }
+        } else {
+            keys = new Object[] {key};
+        }
+
+        Condition[] conds = new Condition[keys.length];
+        for (Object k : keys ) {
+            conds[i] = Condition.EQ(keyCols.get(i), (String)k);
+            i++;
+        }
+        if ( keys.length > 1) {
+            return Condition.AND(conds);
+        }
+        return conds[0];
     }
 
+    /**
+     * 配列の変換が起こらない気がする
+     * @param key
+     * @return 
+     */
     @Override
     public boolean containsKey(Object key) {
         try {
@@ -79,9 +104,9 @@ public class TableMap<K,V> implements Map<K,V> {
     @Override
     public V get(Object key) {
         try {
-            ResultSet rs = tbl.query(condition(key));
+            MapResultSet<V> rs = tbl.queryMap(condition(key));
             while ( rs.next() ) {
-                return tbl.obj(rs);
+                return rs.obj();
             }
             return null;
         } catch (SQLException ex) {
@@ -163,12 +188,7 @@ public class TableMap<K,V> implements Map<K,V> {
     @Override
     public Collection<V> values() {
         try {
-            List<V> vs = new ArrayList();
-            ResultSet rs = tbl.query();
-            while ( rs.next() ) {
-                vs.add(tbl.obj(rs));
-            }
-            return vs;
+            return tbl.obj((Condition)null);
         } catch (SQLException ex) {
             Logger.getLogger(TableMap.class.getName()).log(Level.SEVERE, null, ex);
             throw new IllegalStateException(ex);
@@ -177,7 +197,46 @@ public class TableMap<K,V> implements Map<K,V> {
 
     @Override
     public Set<Entry<K, V>> entrySet() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        try {
+            Set<Entry<K, V>> vs = new HashSet<>();
+            MapResultSet<V> rs = tbl.queryMap();
+            while ( rs.next() ) {
+                Map<String, Object> vm = rs.map();
+                K k = (K)vm.get(keyCol.getName()).toString();
+                vs.add(new TableEntry(k, rs.obj()));
+            }
+            return vs;
+        } catch (SQLException ex) {
+            Logger.getLogger(TableMap.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException(ex);
+        }
+    }
+    
+    class TableEntry implements Entry<K,V> {
+        private K k;
+        private V v;
+        
+        TableEntry(K k, V v) {
+            this.k = k;
+            this.v = v;
+        }
+
+        @Override
+        public K getKey() {
+            return k;
+        }
+
+        @Override
+        public V getValue() {
+            return v;
+        }
+
+        @Override
+        public V setValue(V value) {
+            v = value;
+            TableMap.this.put(k, value);
+            return v;
+        }
     }
     
 }

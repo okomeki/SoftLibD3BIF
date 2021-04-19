@@ -2,6 +2,7 @@ package net.siisise.d3bif;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 import net.siisise.d3bif.where.Condition;
 
@@ -18,6 +19,8 @@ public interface MapTable extends RowTable {
      */
     Condition key(Map<String,Object> values) throws SQLException;
     Map<String,Object> map(ResultSet rs) throws SQLException;
+    List<Map<String,Object>> map(Condition condition) throws SQLException;    
+    
     /**
      * オブジェクトマッピングによるSQL 3つずつ
      * Bean/Map型のobjectをTableにマップする

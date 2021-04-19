@@ -167,9 +167,9 @@ public class RemoteCatalog extends AbstractCatalog {
         try {
             DatabaseMetaData meta = con.getMetaData();
             List<String> types = getTableTypes(meta);
-            for( String t : types ) {
+            types.forEach(t -> {
                 System.out.println("TABLE TYPE : " + t);
-            }
+            });
             
             ResultSet rs = meta.getTypeInfo();
             while ( rs.next() ) {
