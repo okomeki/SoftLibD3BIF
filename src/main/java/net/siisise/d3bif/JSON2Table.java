@@ -5,7 +5,7 @@ import java.sql.SQLException;
 import java.util.List;
 import javax.json.JsonObject;
 import net.siisise.d3bif.where.Condition;
-import net.siisise.json2.JSON2Object;
+import net.siisise.json.JSON2Object;
 
 /**
  * key / insert / update はMap<String,Object> と同じなので略.

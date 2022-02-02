@@ -3,7 +3,7 @@ package net.siisise.d3bif;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
-import net.siisise.json.JSONObject;
+import net.siisise.json.JSON2Object;
 
 /**
  *
@@ -48,7 +48,7 @@ public interface Schema extends D3IfObject {
      * @throws SQLException 
      */
     Table createTable(String name, Map<String,Object> struct, String... options) throws SQLException;
-    Table createTable(String name, JSONObject struct, String... options) throws SQLException;
+    Table createTable(String name, JSON2Object struct, String... options) throws SQLException;
     void drop(BaseTable table) throws SQLException;
 
     void drop(Index index) throws SQLException;

@@ -107,6 +107,32 @@ public class RemoteTable<E> extends AbstractTable<E> {
         return pKeys;
     }
     
+    private Schema schema( String schemaName ) throws SQLException {
+        Catalog catalog = schema.getCatalog();
+//            Catalog pkCatalog = ( pkCatalogName == null ) ? schema.getCatalog() : schema.getCatalog();
+        Schema schema = ( schemaName == null ) ? catalog.getDefaultSchema() : catalog.schema(schemaName);
+        return schema;
+    }
+    
+    /**
+     * 
+     * @param schemaName
+     * @param tableName
+     * @return
+     * @throws SQLException 
+     */
+    private Table table(String schemaName, String tableName ) throws SQLException {
+        Schema schema = schema(schemaName);
+        Table table;
+        if ( !schema.getName().equals(this.schema.getName()) || !tableName.equals(getName())) { // 完全一致? ToDo: スキーマの一致
+            table = schema.cacheTable(tableName); // るーぷする
+        } else {
+            table = this;
+        }
+        return table;
+    }
+    
+    
     /**
      * 外部から参照されている?キー
      * catalogのないPostgreSQLにあわせて書いてある
@@ -134,35 +160,16 @@ public class RemoteTable<E> extends AbstractTable<E> {
             String fkColumnName = ikeyResult.getString("FKCOLUMN_NAME");
             System.out.println("FK:"+fkCatalogName +"."+ fkSchemaName + "." + fkTableName +"."+ fkColumnName);
 
-            Catalog pkCatalog;
-            Schema pkSchema;
             Table pkTable;
             Column pkColumn;
 
-            pkCatalog = schema.getCatalog();
-//            Catalog pkCatalog = ( pkCatalogName == null ) ? schema.getCatalog() : schema.getCatalog();
-            pkSchema = ( pkSchemaName == null ) ? pkCatalog.getDefaultSchema() : pkCatalog.schema(pkSchemaName);
-            
-            if ( !pkTableName.equals(getName())) { // 完全一致?
-                pkTable = pkSchema.cacheTable(pkTableName); // るーぷする
-            } else {
-                pkTable = this;
-            }
+            pkTable = table( pkSchemaName, pkTableName );
             pkColumn = (RemoteColumn) pkTable.col(pkColumnName);
 
-            Catalog fkCatalog;
-            Schema fkSchema;
             Table fkTable;
             Column fkColumn;
             
-            fkCatalog = schema.getCatalog();
-//            Catalog fkCatalog = ( fkCatalogName == null ) ? schema.getCatalog() : schema.getCatalog();
-            fkSchema = ( fkSchemaName == null ) ? fkCatalog.getDefaultSchema() : fkCatalog.schema(fkSchemaName);
-            if ( !fkTableName.equals(getName())) { // 完全一致?
-                fkTable = fkSchema.cacheTable(fkTableName); // るーぷする
-            } else {
-                fkTable = this;
-            }
+            fkTable = table( fkSchemaName, fkTableName );
             fkColumn = (RemoteColumn) fkTable.col(fkColumnName);
 //            fKeys.add(fkColumn);
             fkColumn.REFERENCES(pkColumn);

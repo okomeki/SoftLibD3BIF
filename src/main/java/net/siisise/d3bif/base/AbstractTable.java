@@ -14,14 +14,11 @@ import net.siisise.d3bif.MapTable;
 import net.siisise.d3bif.Schema;
 import net.siisise.d3bif.Table;
 import net.siisise.d3bif.where.Condition;
-import net.siisise.json.JSON;
-import net.siisise.json.JSONObject;
-import net.siisise.json.JSONValue;
 import net.siisise.d3bif.MapResultSet;
-import net.siisise.json2.JSON2;
-import net.siisise.json2.JSON2Array;
-import net.siisise.json2.JSON2Object;
-import net.siisise.json2.JSON2Value;
+import net.siisise.json.JSON2;
+import net.siisise.json.JSON2Array;
+import net.siisise.json.JSON2Object;
+import net.siisise.json.JSON2Value;
 
 /**
  * 実装の元 Map系の実装でObject系、JSON系も使える
@@ -51,12 +48,7 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
      */
     @Override
     public Condition key(E obj) throws SQLException {
-        return key(json(obj));
-    }
-
-    @Override
-    public Condition key(JSONObject json) throws SQLException {
-        return key(json.map());
+        return key(json2(obj));
     }
 
     /**
@@ -66,7 +58,7 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
      * @throws java.sql.SQLException
      */
     @Override
-    public Condition key(Map<String, Object> obj) throws SQLException {
+    public Condition key(Map<String, ?> obj) throws SQLException {
         List<Condition> cnds = new ArrayList();
         List<Column> pkeys = primaryKeys();
         for (Column key : pkeys) {
@@ -87,15 +79,6 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
         insert(json2(obj));
     }
 
-    JSONObject json(E obj) throws SQLException {
-        JSONValue json = JSON.valueOf(obj);
-        if (json instanceof JSONObject) {
-            return (JSONObject) json;
-        } else {
-            throw new SQLException();
-        }
-    }
-
     /**
      * 不要かもしれない
      * @param obj
@@ -109,12 +92,6 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
         } else {
             throw new SQLException();
         }
-    }
-
-    @Override
-    public void insert(JSONObject json) throws SQLException {
-        //System.out.println(json.toString());
-        insert(json.map());
     }
 
     @Override
@@ -133,22 +110,12 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
 
     @Override
     public void update(E obj, Condition con) throws SQLException {
-        update(json(obj), con);
-    }
-
-    @Override
-    public void update(JSONObject json, Condition con) throws SQLException {
-        update(json.map(), con);
+        update(json2(obj), con);
     }
 
     @Override
     public void update(E obj) throws SQLException {
-        update(json(obj));
-    }
-
-    @Override
-    public void update(JSONObject json) throws SQLException {
-        update(json.map());
+        update(json2(obj));
     }
 
     @Override
@@ -180,23 +147,8 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
      * @throws SQLException
      */
     @Override
-    public JSONObject json(ResultSet rs) throws SQLException {
-        return (JSONObject) JSON.valueOf(map(rs));
-    }
-
-    @Override
     public JSON2Object json2(ResultSet rs) throws SQLException {
         return (JSON2Object) JSON2.valueOf(map(rs));
-    }
-
-    @Override
-    public List<JSONObject> json(Condition condition) throws SQLException {
-        MapResultSet rs = AbstractTable.this.queryMap(condition);
-        List<JSONObject> results = new ArrayList<>();
-        while (rs.next()) {
-            results.add(rs.json());
-        }
-        return results;
     }
 
     @Override
@@ -228,11 +180,6 @@ public abstract class AbstractTable<E> extends AbstractBaseTable<E> implements T
     @Override
     public E obj(ResultSet rs) throws SQLException {
         return (E) json2(rs).typeMap(def);
-    }
-
-    @Override
-    public E obj(JSONObject json) throws SQLException {
-        return json.typeMap(def);
     }
 
     @Override

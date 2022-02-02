@@ -11,7 +11,7 @@ import net.siisise.d3bif.Index;
 import net.siisise.d3bif.Sequence;
 import net.siisise.d3bif.Table;
 import net.siisise.d3bif.ref.RefSchema;
-import net.siisise.json.JSONObject;
+import net.siisise.json.JSON2Object;
 
 /**
  *
@@ -118,7 +118,7 @@ public abstract class AbstractSchema implements Schema {
     }
     
     @Override
-    public Table createTable(String name, JSONObject obj, String... options) throws SQLException {
+    public Table createTable(String name, JSON2Object obj, String... options) throws SQLException {
         return createTable(RefSchema.defineOf(name, obj.map()));
     }
 

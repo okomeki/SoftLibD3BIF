@@ -2,9 +2,7 @@ package net.siisise.d3bif.ref;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import net.siisise.d3bif.Schema;
 import net.siisise.d3bif.base.AbstractCatalog;
 
@@ -17,10 +15,10 @@ public class RefDatabase extends AbstractCatalog {
     
     List<String> sqlPool = new ArrayList<>();
 
-    /**
+    /*
      * Ref以外が混在することもあるかもしれない(謎
      */
-    Map<String,Schema> schemas = new HashMap<>();
+//    Map<String,Schema> schemas = new HashMap<>();
 
     public RefDatabase(String name) {
         super(name);

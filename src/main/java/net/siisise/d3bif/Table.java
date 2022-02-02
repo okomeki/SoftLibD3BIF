@@ -5,6 +5,6 @@ package net.siisise.d3bif;
  * @author okome
  * @param <E>
  */
-public interface Table<E> extends MapTable,ObjectTable<E>,JsonTable,JSON2Table {
+public interface Table<E> extends MapTable,ObjectTable<E>,JSON2Table {
     
 }

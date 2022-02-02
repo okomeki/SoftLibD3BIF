@@ -17,7 +17,7 @@ public interface MapTable extends RowTable {
      * @return 
      * @throws java.sql.SQLException 
      */
-    Condition key(Map<String,Object> values) throws SQLException;
+    Condition key(Map<String,?> values) throws SQLException;
     Map<String,Object> map(ResultSet rs) throws SQLException;
     List<Map<String,Object>> map(Condition condition) throws SQLException;    
     

@@ -5,11 +5,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 import net.siisise.d3bif.where.Condition;
-import net.siisise.json.JSON;
-import net.siisise.json.JSONObject;
 import net.siisise.d3bif.MapResultSet;
-import net.siisise.json2.JSON2;
-import net.siisise.json2.JSON2Object;
+import net.siisise.json.JSON2;
+import net.siisise.json.JSON2Object;
 
 /**
  *
@@ -56,11 +54,6 @@ public class AbstractMapResultSet<E> implements MapResultSet<E> {
      * @return
      * @throws SQLException
      */
-    @Override
-    public JSONObject json() throws SQLException {
-        return (JSONObject) JSON.valueOf(map());
-    }
-
     @Override
     public JSON2Object json2() throws SQLException {
         return (JSON2Object) JSON2.valueOf(map());
