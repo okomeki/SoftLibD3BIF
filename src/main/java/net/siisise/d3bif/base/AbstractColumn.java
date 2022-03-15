@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 import net.siisise.d3bif.BaseTable;
 import net.siisise.d3bif.Column;
 import net.siisise.d3bif.Table;
-import net.siisise.json.JSON2Object;
+import net.siisise.json.JSONObject;
 
 /**
  * 仮
@@ -188,7 +188,7 @@ public abstract class AbstractColumn implements Column {
         return this;
     }
     
-    public Column type(JSON2Object jo) {
+    public Column type(JSONObject jo) {
         throw new UnsupportedOperationException("まだない");
     }
     

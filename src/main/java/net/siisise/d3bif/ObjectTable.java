@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import net.siisise.d3bif.where.Condition;
-import net.siisise.json.JSON2Object;
+import net.siisise.json.JSONObject;
 
 /**
  * TableからObjectなところだけ分離してみる
@@ -25,7 +25,7 @@ public interface ObjectTable<E> extends RowTable {
     Condition key(E obj) throws SQLException;
     
     E obj(ResultSet rs) throws SQLException;
-    E obj(JSON2Object json) throws SQLException;
+    E obj(JSONObject json) throws SQLException;
     List<E> obj(Condition condition) throws SQLException;
 
     /**
