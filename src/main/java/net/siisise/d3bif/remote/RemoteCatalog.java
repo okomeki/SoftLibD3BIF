@@ -8,8 +8,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.siisise.d3bif.base.AbstractCatalog;
 
 /**
@@ -79,20 +77,6 @@ public class RemoteCatalog extends AbstractCatalog {
             connectionPool.remove(con);
             con.close();
         }
-    }
-    
-    /**
-     * 最後の手段として残しておく
-     */
-    @Override
-    protected void finalize() throws Throwable {
-        try {
-            close();
-        } catch (SQLException ex) {
-            Logger.getLogger(RemoteCatalog.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        super.finalize();
-        
     }
     
     @Override

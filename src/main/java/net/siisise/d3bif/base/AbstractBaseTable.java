@@ -11,7 +11,6 @@ import net.siisise.d3bif.Schema;
 
 /**
  * 定義用っぽい
- * @param <E>
  */
 public abstract class AbstractBaseTable<E> implements BaseTable {
 

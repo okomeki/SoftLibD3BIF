@@ -10,5 +10,6 @@ import java.lang.annotation.Target;
 @java.lang.annotation.Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface ForignKey {
+
     String value();
 }
