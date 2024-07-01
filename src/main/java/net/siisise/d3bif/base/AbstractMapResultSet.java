@@ -4,11 +4,11 @@ import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
+import net.siisise.bind.Rebind;
 import net.siisise.d3bif.where.Condition;
 import net.siisise.d3bif.MapResultSet;
 import net.siisise.json.JSONObject;
 import net.siisise.json.JSON;
-import net.siisise.json.bind.OMAP;
 
 /**
  *
@@ -62,7 +62,7 @@ public class AbstractMapResultSet<E> implements MapResultSet<E> {
     
     @Override
     public E obj() throws SQLException {
-      return (E) OMAP.typeMap(map(), table.def);
+      return (E) Rebind.valueOf(map(), table.def);
     }
     
     /**
@@ -73,6 +73,6 @@ public class AbstractMapResultSet<E> implements MapResultSet<E> {
      */
     @Override
     public E typeMap(Type type) throws SQLException {
-        return (E) json().typeMap(type);
+        return (E) Rebind.valueOf(map(), type);
     }
 }

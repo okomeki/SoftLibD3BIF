@@ -19,7 +19,6 @@ import net.siisise.d3bif.annotation.Unique;
 /**
  * 定義用
  * PostgreSQLのtemplate0の様な扱い
- * @author okome
  */
 public class RefSchema extends AbstractSchema {
     

@@ -6,10 +6,6 @@ import java.util.List;
 import net.siisise.d3bif.Column;
 import net.siisise.d3bif.base.AbstractBaseTable;
 
-/**
- *
- * @param <E>
- */
 public class RefBaseTable<E> extends AbstractBaseTable {
     
     public RefBaseTable(RefSchema schema, String name, Column... columns) {
